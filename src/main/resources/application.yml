@@ -1,12 +1,14 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/bookstore
     username: root
     password: thiyaga
-
 logging:
   level:
     org:
