@@ -1,5 +1,6 @@
 package org.ta.database;
 
+import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -13,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.ta.database.dto.Author;
@@ -23,12 +25,12 @@ import org.ta.database.dto.Book;
 public class DatabaseServiceTest {
 
 	Logger log = LogManager.getLogger(this.getClass().getName());
-	
+	@Autowired
 	private EntityManagerFactory emf;
 	
 	@Before
 	public void init() {
-		emf = Persistence.createEntityManagerFactory("persistence-unit");
+//		emf = Persistence.createEntityManagerFactory("persistence-unit");
 	}
 
 	@After
@@ -45,15 +47,36 @@ public class DatabaseServiceTest {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
 
-		Book b = em.find(Book.class, 1L);
-		
+		Book book = new Book();
+		book.setAuthors(null);
+		book.setTitle("Test Book");
+		em.persist(book);
+
+		Author auth = new Author();
+		auth.setEmail("test@useremail.com");
+		auth.setFirstname("Author First Name");
+		auth.setLastname("Author Last Name");
+		auth.setVersion(1);
+		book.setAuthors(Arrays.asList(new Author[]{auth}));
+		auth.setBooks(Arrays.asList(new Book[]{book}));
+		em.persist(auth);
+
+
+		Book b = em.find(Book.class, 5L);
+
+
 		Author a = new Author();
 		a.setFirstname("Thorben");
 		a.setLastname("Janssen");
 		
 		a.getBooks().add(b);
-		b.getAuthors().add(a);
-		
+		if(b != null)
+			b.addAuthor(a);
+		else {
+			b = new Book();
+			b.setTitle("Unknown");
+			b.addAuthor(a);
+		}
 		em.persist(a);
 		
 		em.getTransaction().commit();
@@ -63,7 +86,7 @@ public class DatabaseServiceTest {
 		em = emf.createEntityManager();
 		em.getTransaction().begin();
 
-		b = em.find(Book.class, 1L);
+		b = em.find(Book.class, 5L);
 		
 		List<Author> authors = b.getAuthors();
 		Assert.assertTrue(authors.get(0).getBooks().contains(b));

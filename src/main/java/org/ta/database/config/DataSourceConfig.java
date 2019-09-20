@@ -5,6 +5,7 @@ import java.util.Properties;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,10 +35,12 @@ public class DataSourceConfig {
 		vendorAdapter.setGenerateDdl(true);
 
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+		em.setPersistenceUnitName("persistence-unit");
+		em.setPersistenceProviderClass(HibernatePersistenceProvider.class);
 		em.setDataSource(dataSource());
-		em.setPackagesToScan("com.thomasvitale.jpa.demo.model");
+		em.setPackagesToScan("org.ta.database");
 		em.setJpaVendorAdapter(vendorAdapter);
-		em.setJpaProperties(additionalProperties());
+//		em.setJpaProperties(additionalProperties());
 
 		return em;
 	}
@@ -60,12 +63,14 @@ public class DataSourceConfig {
 		return transactionManager;
 	}
 
+
+
 	@Bean
 	public PersistenceExceptionTranslationPostProcessor exceptionTranslation() {
 		return new PersistenceExceptionTranslationPostProcessor();
 	}
 
-	private Properties additionalProperties() {
+/*	private Properties additionalProperties() {
 		Properties properties = new Properties();
 		properties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto"));
 		properties.setProperty("hibernate.dialect", env.getProperty("spring.jpa.properties.hibernate.dialect"));
@@ -76,5 +81,5 @@ public class DataSourceConfig {
 		properties.setProperty("hibernate.show_sql", env.getProperty("spring.jpa.show-sql"));
 		properties.setProperty("hibernate.format_sql", env.getProperty("spring.jpa.properties.hibernate.format_sql"));
 		return properties;
-	}
+	}*/
 }
